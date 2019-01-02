@@ -13,9 +13,12 @@
                       .json-object-tree-view .j-caret-down::before { -ms-transform:rotate(90deg);-webkit-transform:rotate(90deg); }\
                       .json-object-tree-view .nested { display:none; padding-left:30px; }\
                       .json-object-tree-view .active { display:block; }\
-                      .json-object-tree-view ul li { list-style:none !important; }';
+                      .json-object-tree-view  ul li { list-style:none !important; }\
+                      .json-object-tree-view .value[empty] { color:#e8e8e8 !important; border: none !important; }\
+                      .json-object-tree-view .j-caret[empty], .json-object-tree-view .property[empty] { color:#d468603d !important; }';
         if ($("style#json-object-tree-css").length == 0) $('<style/>', { id: "json-object-tree-css" }).html(_style).appendTo('head');
         var treeHtml = $("<div/>").append($("<ul/>", { ref: "root", class: "json-object-tree-view" }));
+        var rootRef = "root";
         if (typeof (obj) == "object") {
             var getUniqueID = function () {
                 var s4 = function () { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); };
@@ -23,8 +26,8 @@
             };
             var getUlWithRef = function (_ref, _class) { return $("<ul/>", { "ref": _ref, "class": _class }); };
             var getLiWithRef = function (_ref, _class) { return $("<li/>", { "ref": _ref, "class": _class }); };
-            var getLiHtml = function (_prop, _value) { return "<span class='property'>" + _prop + "</span><span class='seperator'>:</span>" + "<span class='value'>" + _value + "</span>"; }
-            var getCaretSpanHtml = function (_value) { return "<span class='j-caret'>" + _value + "</span>" }
+            var getLiHtml = function (_prop, _value, isEmpty) { return "<span class='property'>" + _prop + "</span><span class='seperator'>:</span>" + "<span class='value' " + ((isEmpty) ? ' empty' : '') + ">" + _value + "</span>"; }
+            var getCaretSpanHtml = function (_value, isEmpty) { return "<span class='j-caret'  " + ((isEmpty) ? ' empty' : '') + ">" + _value + "</span>" }
             var recursiveFunc = function (_prop, _object, _parentRef) {
                 if (_object[_prop] && typeof (_object[_prop]) == "object") {
                     var uniqueID = getUniqueID();
@@ -32,12 +35,13 @@
                     if (element.length == 0) treeHtml.append(getUlWithRef(uniqueID));
                     if (Array.isArray(_object[_prop])) {
                         uniqueID = getUniqueID();
-                        var $li = getLiWithRef(uniqueID).html(getCaretSpanHtml(_prop));
+                        var $li = getLiWithRef(uniqueID);
                         element.append($li);
                         if (_object[_prop].length == 0) {
-                            $li.html(getLiHtml(_prop, "[]")).appendTo($ul);
+                            $li.html(getLiHtml(_prop, "[]", true));
                             return;
                         }
+                        $li.html(getCaretSpanHtml(_prop));
                         var $ul = getUlWithRef(uniqueID, "nested");
                         $ul.appendTo($li);
                         _object[_prop].forEach(function (innerObj, index) {
@@ -49,11 +53,15 @@
                                 for (var prop in innerObj) recursiveFunc(prop, innerObj, uniqueID);
                             } else $("<li/>").html(getLiHtml(index, innerObj)).appendTo($ul);
                         });
-
                     } else {
                         var uniqueID = getUniqueID();
-                        var $li = getLiWithRef(uniqueID).html(getCaretSpanHtml(_prop));
+                        var $li = getLiWithRef(uniqueID);
                         element.append($li);
+                        if (Object.keys(_object[_prop]).length == 0) {
+                            $li.html(getLiHtml(_prop, "{}", true)).appendTo($ul);
+                            return;
+                        }
+                        $li.html(getCaretSpanHtml(_prop));
                         var $ul = getUlWithRef(uniqueID, "nested");
                         $ul.appendTo($li);
                         for (var prop in _object[_prop]) recursiveFunc(prop, _object[_prop], uniqueID);
@@ -66,8 +74,16 @@
                     }
                 }
             }
-            for (var prop in obj) recursiveFunc(prop, obj, "root");
-        } else treeHtml.find('ul').append($("<li/>").html("<span class='value'>" + obj + "</span>"))
+            var element = treeHtml.find("ul[ref='root']");
+            var uniqueID = getUniqueID();
+            var $li = getLiWithRef(uniqueID);
+            element.append($li);
+            $li.html(getCaretSpanHtml(Array.isArray(obj) ? "Array" : "Object", true));
+            var $ul = getUlWithRef(uniqueID, "nested");
+            $ul.appendTo($li);
+            rootRef = uniqueID;
+            for (var prop in obj) recursiveFunc(prop, obj, rootRef);
+        } else treeHtml.find('ul').append($("<li/>").html("<span class='property' empty>" + typeof (obj) + "</span><span class='seperator'>:</span><span class='value'>" + obj + "</span>"))
         $(this).html(treeHtml[0].innerHTML);
         $(this).find(".json-object-tree-view .j-caret").click(function () {
             $(this).toggleClass('j-caret-down').parent().find('>.nested').toggleClass('active');
