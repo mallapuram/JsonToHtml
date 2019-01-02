@@ -15,7 +15,7 @@
                       .json-object-tree-view .active { display:block; }\
                       .json-object-tree-view  ul li { list-style:none !important; }\
                       .json-object-tree-view .value[empty] { color:#e8e8e8 !important; border: none !important; }\
-                      .json-object-tree-view .j-caret[empty], .json-object-tree-view .property[empty] { color:#d468603d !important; }';
+                      .json-object-tree-view .j-caret[empty], .json-object-tree-view .property[empty] { color:rgba(235, 204, 209, 1) !important; }';
         if ($("style#json-object-tree-css").length == 0) $('<style/>', { id: "json-object-tree-css" }).html(_style).appendTo('head');
         var treeHtml = $("<div/>").append($("<ul/>", { ref: "root", class: "json-object-tree-view" }));
         var rootRef = "root";
