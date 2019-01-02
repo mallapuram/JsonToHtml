@@ -27,7 +27,7 @@
             var getUlWithRef = function (_ref, _class) { return $("<ul/>", { "ref": _ref, "class": _class }); };
             var getLiWithRef = function (_ref, _class) { return $("<li/>", { "ref": _ref, "class": _class }); };
             var getLiHtml = function (_prop, _value, isEmpty) { return "<span class='property'>" + _prop + "</span><span class='seperator'>:</span>" + "<span class='value' " + ((isEmpty) ? ' empty' : '') + ">" + _value + "</span>"; }
-            var getCaretSpanHtml = function (_value, isEmpty) { return "<span class='j-caret'  " + ((isEmpty) ? ' empty' : '') + ">" + _value + "</span>" }
+            var getCaretSpanHtml = function (_value, isEmpty, isOpen) { return "<span class='j-caret " + (isOpen ? "j-caret-down" : "") + "'  " + ((isEmpty) ? ' empty' : '') + ">" + _value + "</span>" }
             var recursiveFunc = function (_prop, _object, _parentRef) {
                 if (_object[_prop] && typeof (_object[_prop]) == "object") {
                     var uniqueID = getUniqueID();
@@ -78,8 +78,8 @@
             var uniqueID = getUniqueID();
             var $li = getLiWithRef(uniqueID);
             element.append($li);
-            $li.html(getCaretSpanHtml(Array.isArray(obj) ? "Array" : "Object", true));
-            var $ul = getUlWithRef(uniqueID, "nested");
+            $li.html(getCaretSpanHtml(Array.isArray(obj) ? "Array" : "Object", true, true));
+            var $ul = getUlWithRef(uniqueID, "nested active");
             $ul.appendTo($li);
             rootRef = uniqueID;
             for (var prop in obj) recursiveFunc(prop, obj, rootRef);
