@@ -1,7 +1,7 @@
 (function ($) {
     'use strict';
     $.fn.jsonToHtml = function (obj) {
-        if (!obj) return;
+        if (!$.trim(obj)) return;
         var _style = '.json-object-tree-view { font-family : monospace !important; font-size: 1.25em !important; list-style: none  !important; }\
                       .json-object-tree-view { margin:0; padding:0; }\
                       .json-object-tree-view .seperator { margin:0 5px;font-weight:bold; }\
